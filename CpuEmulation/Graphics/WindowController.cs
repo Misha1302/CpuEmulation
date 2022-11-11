@@ -6,7 +6,7 @@ namespace CpuEmulation.Graphics;
 public class WindowController
 {
     private readonly Window _window;
-    
+
     public WindowController(Window window)
     {
         _window = window;
@@ -19,6 +19,6 @@ public class WindowController
 
     public void OnWindowResized(object? sender, SizeEventArgs e)
     {
-        _window.Size = new Vector2u(CpuConsole.WIDTH, CpuConsole.HEIGHT);
+        _window.Size = new Vector2u(CpuConsole.Width, CpuConsole.Height);
     }
 }

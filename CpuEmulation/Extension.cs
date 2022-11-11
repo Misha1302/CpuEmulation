@@ -68,10 +68,8 @@ public static class Extension
     public static bool Identical(this BitArray array0, BitArray array1)
     {
         for (var i = 0; i < array0.Length; i++)
-        {
             if (array0[i] != array1[i])
                 return false;
-        }
 
         return true;
     }

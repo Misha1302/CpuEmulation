@@ -5,14 +5,14 @@ namespace CpuEmulation.Graphics;
 
 public static class CpuConsole
 {
-    public const int WIDTH = 1024;
-    public const int HEIGHT = 512;
-    public const int COUNT = WIDTH * HEIGHT;
+    public const int Width = 1024;
+    public const int Height = 512;
+    public const int Count = Width * Height;
 
 
     public static void Run()
     {
-        var videoMode = new VideoMode(WIDTH, HEIGHT);
+        var videoMode = new VideoMode(Width, Height);
         var window = new RenderWindow(videoMode, "Base console");
 
         var windowController = new WindowController(window);

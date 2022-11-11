@@ -20,7 +20,7 @@ public class VideoController
         _point = new RectangleShape(new Vector2f(1, 1));
         _point.FillColor = _foregroundFontColor;
 
-        _fillShape = new RectangleShape(new Vector2f(CpuConsole.WIDTH, CpuConsole.HEIGHT));
+        _fillShape = new RectangleShape(new Vector2f(CpuConsole.Width, CpuConsole.Height));
         _fillShape.FillColor = _backgroundFontColor;
         _fillShape.Position = new Vector2f(0, 0);
     }
@@ -30,12 +30,15 @@ public class VideoController
         var stopwatch = Stopwatch.StartNew();
 
         ClearWindow(keyboardController);
-        for (var i = 0; i < CpuConsole.COUNT; i++)
+        for (var i = 0; i < CpuConsole.Count; i++)
         {
-            if (!Memory.GetBit(MemoryConstants.VRAM_OFFSET + i)) continue;
+            if (!MemoryEmulation.GetBit(MemoryEmulationConstants.VramOffset + i)) continue;
 
             // ReSharper disable once PossibleLossOfFraction
-            _point.Position = new Vector2f(i / CpuConsole.HEIGHT, i % CpuConsole.HEIGHT);
+            var x = i / CpuConsole.Height;
+            var y = i % CpuConsole.Height;
+
+            _point.Position = new Vector2f(x, y);
             _window.Draw(_point);
         }
 
@@ -48,7 +51,7 @@ public class VideoController
     private void ClearWindow(KeyboardController keyboardController)
     {
         _window.Draw(_fillShape);
-        Memory.ClearVRam();
+        MemoryEmulation.ClearVRam();
         keyboardController.SetVramOfLetters();
     }
 }

@@ -5,7 +5,7 @@ namespace CpuEmulation.Graphics;
 
 public static class Letters
 {
-    public const int SIZE_ONE_LETTER = 50;
+    public const int SizeOneLetter = 50;
 
     private static readonly Vector2i[] _aPositions =
     {
@@ -329,25 +329,21 @@ public static class Letters
             { 57, _spacePositions }
         };
 
-    private static int _point = MemoryConstants.LETTERS_RAM_OFFSET;
+    private static int _point = MemoryEmulationConstants.LettersRamOffset;
 
     public static void Init()
     {
         // size one vector - 64 bit
         // size one letter - 49 vectors + 1 index (32 bits) 
         // size of all 128 letters = 396 kilobytes! that's terrible
-        foreach (var letter in _defaultLetters)
-        {
-            SetLetterToRam(letter.Value, letter.Key);
-        }
+        foreach (var letter in _defaultLetters) SetLetterToRam(letter.Value, letter.Key);
     }
 
     private static void SetLetterToRam(IReadOnlyList<Vector2i> letter, int index)
     {
-        Memory.Set32Bits(index.ToBitArray(), _point);
+        MemoryEmulation.Set32Bits(index.ToBitArray(), _point);
         _point += 32;
-        for (var i = 0; i < SIZE_ONE_LETTER; i++)
-        {
+        for (var i = 0; i < SizeOneLetter; i++)
             if (i >= letter.Count)
             {
                 _point += 64;
@@ -355,11 +351,10 @@ public static class Letters
             else
             {
                 var position = letter[i];
-                Memory.Set32Bits(position.X.ToBitArray(), _point);
+                MemoryEmulation.Set32Bits(position.X.ToBitArray(), _point);
                 _point += 32;
-                Memory.Set32Bits(position.Y.ToBitArray(), _point);
+                MemoryEmulation.Set32Bits(position.Y.ToBitArray(), _point);
                 _point += 32;
             }
-        }
     }
 }

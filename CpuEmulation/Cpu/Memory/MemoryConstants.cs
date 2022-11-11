@@ -2,18 +2,20 @@
 
 namespace CpuEmulation.Cpu.Memory;
 
-public static class MemoryConstants
+public static class MemoryEmulationConstants
 {
-    public const int BYTE_SIZE = 8;
-    public const int KILOBYTE_SIZE = BYTE_SIZE * 1024;
+    public const int ByteSize = 8;
+    public const int KilobyteSize = ByteSize * 1024;
 
-    public const int RAM_SIZE = 0; // temporarily not needed
-    public const int VRAM_SIZE = CpuConsole.COUNT;
-    public const int INPUT_RAM_SIZE = KILOBYTE_SIZE * 128;
-    public const int LETTERS_RAM_SIZE = KILOBYTE_SIZE * 397;
+    public const int RamSize = 0; // temporarily not needed
+    public const int VramSize = CpuConsole.Count;
+    public const int InputRamSize = KilobyteSize * 128;
+    public const int LettersRamSize = KilobyteSize * 397;
+    public const int CpuRamSize = KilobyteSize;
 
-    public const int RAM_OFFSET = 0;
-    public const int VRAM_OFFSET = RAM_OFFSET + RAM_SIZE;
-    public const int INPUT_RAM_OFFSET = VRAM_OFFSET + VRAM_SIZE;
-    public const int LETTERS_RAM_OFFSET = INPUT_RAM_OFFSET + INPUT_RAM_SIZE;
+    public const int RamOffset = 0;
+    public const int VramOffset = RamOffset + RamSize;
+    public const int InputRamOffset = VramOffset + VramSize;
+    public const int LettersRamOffset = InputRamOffset + InputRamSize;
+    public const int CpuRamOffset = LettersRamOffset + LettersRamSize;
 }

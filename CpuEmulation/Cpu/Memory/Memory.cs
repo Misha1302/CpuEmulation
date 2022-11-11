@@ -1,36 +1,27 @@
 ﻿using System.Collections;
-using static CpuEmulation.Cpu.Memory.MemoryConstants;
+using static CpuEmulation.Cpu.Memory.MemoryEmulationConstants;
 
 namespace CpuEmulation.Cpu.Memory;
 
-public static class Memory
+public static class MemoryEmulation
 {
     private static readonly BitArray _ramArray;
 
-    static Memory()
+    static MemoryEmulation()
     {
-        _ramArray = new BitArray(VRAM_SIZE + RAM_SIZE + INPUT_RAM_SIZE + LETTERS_RAM_SIZE);
+        _ramArray = new BitArray(VramSize + RamSize + InputRamSize + LettersRamSize);
         _ramArray.SetAll(false);
 
 
-        for (var i = INPUT_RAM_OFFSET; i < INPUT_RAM_OFFSET + INPUT_RAM_SIZE; i += 32)
-        {
-            _ramArray[i] = true;
-        }
+        for (var i = InputRamOffset; i < InputRamOffset + InputRamSize; i += 32) _ramArray[i] = true;
 
-        for (var i = LETTERS_RAM_OFFSET; i < LETTERS_RAM_OFFSET + LETTERS_RAM_SIZE; i += 32)
-        {
-            _ramArray[i] = true;
-        }
+        for (var i = LettersRamOffset; i < LettersRamOffset + LettersRamSize; i += 32) _ramArray[i] = true;
     }
 
     public static void ClearVRam()
     {
-        var a = new BitArray(VRAM_SIZE);
-        for (var i = VRAM_OFFSET; i < VRAM_OFFSET + VRAM_SIZE; i += 32)
-        {
-            Set32Bits(a, i);
-        }
+        var a = new BitArray(VramSize);
+        for (var i = VramOffset; i < VramOffset + VramSize; i += 32) Set32Bits(a, i);
     }
 
 
@@ -42,11 +33,6 @@ public static class Memory
     public static void Set32Bits(BitArray range, int startAddress)
     {
         _ramArray.SetRange(range, startAddress, startAddress + 32);
-    }
-
-    public static void SetByte(BitArray range, int startAddress)
-    {
-        _ramArray.SetRange(range, startAddress, startAddress + 8);
     }
 
     private static void SetRange(BitArray range, int startAddress, int count)
@@ -70,11 +56,6 @@ public static class Memory
     public static BitArray Get32Bits(int startAddress)
     {
         return GetRange(startAddress, 32);
-    }
-
-    public static BitArray GetByte(int startAddress)
-    {
-        return GetRange(startAddress, 8);
     }
 
     public static bool GetBit(int address)
