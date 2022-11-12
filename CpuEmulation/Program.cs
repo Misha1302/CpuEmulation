@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Runtime;
-using CpuEmulation.Cpu;
+﻿using System.Runtime;
 using CpuEmulation.Graphics;
 
 namespace CpuEmulation;
@@ -10,15 +8,12 @@ public static class Program
     private static void Main()
     {
         OptimizeApplication();
-        PrepareStaticClasses();
         MainInternal();
     }
 
-    private static void PrepareStaticClasses()
-    {
-        Letters.Init();
-    }
-
+    /// <summary>
+    ///     Sets the current thread to the highest priority, starts the Jit compiler profile
+    /// </summary>
     private static void OptimizeApplication()
     {
         const string mainProfileName = "MainProfile";
@@ -30,6 +25,7 @@ public static class Program
 
     private static void MainInternal()
     {
-        CpuConsole.Run();
+        Letters.SetLettersToLettersMemory();
+        CpuConsole.Start();
     }
 }

@@ -20,6 +20,9 @@ public static class BitAlgebra
         Null[0] = true;
     }
 
+    /// <summary>
+    ///     Adds two values and puts the resulting value into the eax register
+    /// </summary>
     public static void Add()
     {
         var add = false;
@@ -40,6 +43,9 @@ public static class BitAlgebra
             }
     }
 
+    /// <summary>
+    ///     Reduce two values and puts the resulting value into the eax register
+    /// </summary>
     public static void Reduce()
     {
         var reduce = false;

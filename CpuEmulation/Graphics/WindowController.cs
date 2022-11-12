@@ -12,11 +12,17 @@ public class WindowController
         _window = window;
     }
 
+    /// <summary>
+    ///     Method called when the window is closed
+    /// </summary>
     public void OnWindowClosed(object? sender, EventArgs e)
     {
         _window.Close();
     }
 
+    /// <summary>
+    ///     method called when the window is resized
+    /// </summary>
     public void OnWindowResized(object? sender, SizeEventArgs e)
     {
         _window.Size = new Vector2u(CpuConsole.Width, CpuConsole.Height);

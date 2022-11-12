@@ -5,7 +5,7 @@ namespace CpuEmulation.Graphics;
 
 public static class Letters
 {
-    public const int SizeOneLetter = 50;
+    public const int SizeOneLetter = 120;
 
     private static readonly Vector2i[] _aPositions =
     {
@@ -314,6 +314,7 @@ public static class Letters
     };
 
     private static readonly Vector2i[] _spacePositions = { };
+    private static readonly Vector2i[] _filledSpacePositions = new Vector2i[SizeOneLetter];
 
     private static readonly IReadOnlyDictionary<int, Vector2i[]> _defaultLetters =
         new Dictionary<int, Vector2i[]>
@@ -326,17 +327,40 @@ public static class Letters
             { 5, _fPositions },
             { 6, _gPositions },
             { 52, _questionPositions },
-            { 57, _spacePositions }
+            { 57, _spacePositions },
+            { 1000, _filledSpacePositions }
         };
 
     private static int _point = MemoryEmulationConstants.LettersRamOffset;
 
-    public static void Init()
+    /// <summary>
+    ///     Sets arrays of letters in letters Memory
+    /// </summary>
+    public static void SetLettersToLettersMemory()
     {
+        SetLettersArray();
+
         // size one vector - 64 bit
         // size one letter - 49 vectors + 1 index (32 bits) 
         // size of all 128 letters = 396 kilobytes! that's terrible
-        foreach (var letter in _defaultLetters) SetLetterToRam(letter.Value, letter.Key);
+        foreach (var letter in _defaultLetters)
+            SetLetterToRam(letter.Value, letter.Key);
+    }
+
+    /// <summary>
+    ///     Sets values for some letters
+    /// </summary>
+    private static void SetLettersArray()
+    {
+        var y = 0;
+        for (var i = 0; i < SizeOneLetter; i++)
+        {
+            // ReSharper disable once PossibleLossOfFraction
+            var x = i % 9;
+            if (i != 0 && i % 9 == 0) y++;
+
+            _filledSpacePositions[i] = new Vector2i(x, y);
+        }
     }
 
     private static void SetLetterToRam(IReadOnlyList<Vector2i> letter, int index)

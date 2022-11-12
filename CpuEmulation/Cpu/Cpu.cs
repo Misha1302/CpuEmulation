@@ -32,6 +32,9 @@ public static class Cpu
         _offsets.Add(offset);
     }
 
+    /// <summary>
+    ///     Iterates over the offset list and calls the command at the index that their address is
+    /// </summary>
     private static void Run()
     {
         foreach (var offset in _offsets)

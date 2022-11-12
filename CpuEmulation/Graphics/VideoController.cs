@@ -7,8 +7,6 @@ namespace CpuEmulation.Graphics;
 
 public class VideoController
 {
-    private readonly Color _backgroundFontColor = Color.Black;
-    private readonly Shape _fillShape;
     private readonly Color _foregroundFontColor = Color.Cyan;
     private readonly Shape _point;
     private readonly RenderWindow _window;
@@ -19,17 +17,28 @@ public class VideoController
 
         _point = new RectangleShape(new Vector2f(1, 1));
         _point.FillColor = _foregroundFontColor;
-
-        _fillShape = new RectangleShape(new Vector2f(CpuConsole.Width, CpuConsole.Height));
-        _fillShape.FillColor = _backgroundFontColor;
-        _fillShape.Position = new Vector2f(0, 0);
     }
 
-    public void WindowDisplay(KeyboardController keyboardController)
+    /// <summary>
+    ///     Displays vram
+    /// </summary>
+    public void WindowDisplay()
     {
         var stopwatch = Stopwatch.StartNew();
 
-        ClearWindow(keyboardController);
+        ClearWindow();
+        DrawVramInternal();
+        _window.Display();
+
+        stopwatch.Stop();
+        Console.WriteLine(stopwatch.ElapsedMilliseconds);
+    }
+
+    /// <summary>
+    ///     Draws video memory on the window. To display, use WindowDisplay
+    /// </summary>
+    private void DrawVramInternal()
+    {
         for (var i = 0; i < CpuConsole.Count; i++)
         {
             if (!MemoryEmulation.GetBit(MemoryEmulationConstants.VramOffset + i)) continue;
@@ -41,17 +50,13 @@ public class VideoController
             _point.Position = new Vector2f(x, y);
             _window.Draw(_point);
         }
-
-        _window.Display();
-
-        stopwatch.Stop();
-        Console.WriteLine(stopwatch.ElapsedMilliseconds);
     }
 
-    private void ClearWindow(KeyboardController keyboardController)
+    /// <summary>
+    ///     Clears the screen of old pixels
+    /// </summary>
+    private void ClearWindow()
     {
-        _window.Draw(_fillShape);
-        MemoryEmulation.ClearVRam();
-        keyboardController.SetVramOfLetters();
+        _window.Clear();
     }
 }

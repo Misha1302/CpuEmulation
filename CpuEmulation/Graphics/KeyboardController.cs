@@ -20,9 +20,12 @@ public class KeyboardController
 
     public KeyboardController()
     {
-        ClearPosition();
+        ResetPosition();
     }
 
+    /// <summary>
+    ///     Method to call when a key is pressed
+    /// </summary>
     public void OnWindowKeyPressed(object? sender, KeyEventArgs e)
     {
         Registers.Eax = Registers.InputIp;
@@ -32,22 +35,36 @@ public class KeyboardController
 
         var address = Registers.InputIp.ToInt32();
         MemoryEmulation.Set32Bits(((int)e.Code).ToBitArray(), address);
+
+        SetVramOfLetters();
     }
 
-    public void SetVramOfLetters()
+    /// <summary>
+    ///     Puts characters mapping in vram
+    /// </summary>
+    private void SetVramOfLetters()
     {
-        ClearPosition();
+        ResetPosition();
         for (var i = MemoryEmulationConstants.InputRamOffset;
              i < MemoryEmulationConstants.InputRamOffset + MemoryEmulationConstants.InputRamSize - 32;
              i += 32)
         {
             if (MemoryEmulation.GetBit(i)) continue;
+
             var get32Bit = MemoryEmulation.Get32Bits(i);
 
             var currentKey = get32Bit.ToInt32();
             switch (currentKey)
             {
                 case (int)Keyboard.Key.Backspace:
+                    _position.X -= LETTER_X_OFFSET;
+                    if (_position.X <= DEFAULT_X_POSITION)
+                    {
+                        _position.X = DEFAULT_X_POSITION;
+                        _position.Y += LETTER_Y_OFFSET;
+                    }
+
+                    DeleteLetterFromVramMemory();
                     FreeInputMemory(new[] { i, i - 32 });
                     ReduceInputIp(i, 2);
                     return;
@@ -56,35 +73,66 @@ public class KeyboardController
                     continue;
             }
 
-            if (!FindLetter(currentKey, out var letterArray))
-                FindLetter(QUESTION_INT_KEY, out letterArray);
+            if (!TryFindLetter(currentKey, out var letterArray))
+                TryFindLetter(QUESTION_INT_KEY, out letterArray);
 
-            foreach (var vector2I in letterArray)
-            {
-                // the logical condition would be "letterArray[j].X == int.MaxValue || letterArray[j].Y == int.MinValue",
-                // but the second part doesn't matter because both X and Y are int.MinValue.
-                // For a slight increase in speed, you can not use "==", but replace it with "<".
-                // In this case, the condition will run 16 times faster
-
-                if (vector2I.X < 0) break;
-
-                var positionX = vector2I.X + _position.X;
-                var positionY = vector2I.Y + _position.Y;
-                var vramOffset = CpuConsole.Height * positionX + positionY + MemoryEmulationConstants.VramOffset;
-                MemoryEmulation.SetBit(true, vramOffset);
-            }
+            SetLetterToVram(letterArray);
 
             _position.X += LETTER_X_OFFSET;
             if (_position.X >= CpuConsole.Width - 8) GotoNewLine();
         }
     }
 
-    private static void FreeInputMemory(IEnumerable<int> addresses)
+    /// <summary>
+    ///     Clears vram from character at current position
+    /// </summary>
+    private void DeleteLetterFromVramMemory()
     {
-        foreach (var address in addresses) MemoryEmulation.SetBit(true, address);
+        const int filledSpace = 1000;
+        TryFindLetter(filledSpace, out var letter);
+        SetLetterToVram(letter, false);
     }
 
-    private static bool FindLetter(int currentKey, out Vector2i[] letterArray)
+    /// <summary>
+    ///     Sets character mapping to vram
+    /// </summary>
+    /// <param name="letterArray">letter mapping</param>
+    /// <param name="filler">the value for filling the vram bits of this letter</param>
+    private void SetLetterToVram(IEnumerable<Vector2i> letterArray, bool filler = true)
+    {
+        foreach (var vector2I in letterArray)
+        {
+            // the logical condition would be "letterArray[j].X == int.MaxValue || letterArray[j].Y == int.MinValue",
+            // but the second part doesn't matter because both X and Y are int.MinValue.
+            // For a slight increase in speed, you can not use "==", but replace it with "<".
+            // In this case, the condition will run 16 times faster
+
+            if (vector2I.X < 0) break;
+
+            var positionX = vector2I.X + _position.X;
+            var positionY = vector2I.Y + _position.Y;
+            var vramOffset = CpuConsole.Height * positionX + positionY + MemoryEmulationConstants.VramOffset;
+            MemoryEmulation.SetBit(filler, vramOffset);
+        }
+    }
+
+    /// <summary>
+    ///     Frees up memory at the specified addresses
+    /// </summary>
+    /// <param name="addresses">addresses whose memory needs to be freed</param>
+    private static void FreeInputMemory(IEnumerable<int> addresses)
+    {
+        foreach (var address in addresses)
+            MemoryEmulation.SetBit(true, address);
+    }
+
+    /// <summary>
+    ///     Searches in lettersRam for the letter with the given ID
+    /// </summary>
+    /// <param name="currentKey">key id</param>
+    /// <param name="letterArray">Array for writing letter values</param>
+    /// <returns>Was it possible to find a letter or not</returns>
+    private static bool TryFindLetter(int currentKey, out Vector2i[] letterArray)
     {
         var numberBitArray = currentKey.ToBitArray();
 
@@ -122,21 +170,33 @@ public class KeyboardController
         return false;
     }
 
-    private void ReduceInputIp(int i, int quantity32)
+    /// <summary>
+    ///     Reduces the number and writes the result to InputIp
+    /// </summary>
+    /// <param name="i">value to reduce</param>
+    /// <param name="quantity32">number of times reduce</param>
+    private static void ReduceInputIp(int i, int quantity32)
     {
         Registers.Eax = i.ToBitArray();
         Registers.Ebx = BitAlgebra.ThirtyTwo;
-        for (var j = 0; j < quantity32; j++) BitAlgebra.Reduce();
+        for (var j = 0; j < quantity32; j++)
+            BitAlgebra.Reduce();
 
         Registers.InputIp = (BitArray)Registers.Eax.Clone();
     }
 
-    private void ClearPosition()
+    /// <summary>
+    ///     Sets the X and Y position by default
+    /// </summary>
+    private void ResetPosition()
     {
         _position.Y = DEFAULT_Y_POSITION;
         _position.X = DEFAULT_X_POSITION;
     }
 
+    /// <summary>
+    ///     Returns the X position to the default value and moves the Y position down
+    /// </summary>
     private void GotoNewLine()
     {
         _position.Y += LETTER_Y_OFFSET;

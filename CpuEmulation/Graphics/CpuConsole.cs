@@ -7,10 +7,17 @@ public static class CpuConsole
 {
     public const int Width = 1024;
     public const int Height = 512;
+
+    /// <summary>
+    ///     Contains the number of pixels in the console (Width * Height)
+    /// </summary>
     public const int Count = Width * Height;
 
 
-    public static void Run()
+    /// <summary>
+    ///     Starts the console
+    /// </summary>
+    public static void Start()
     {
         var videoMode = new VideoMode(Width, Height);
         var window = new RenderWindow(videoMode, "Base console");
@@ -27,7 +34,7 @@ public static class CpuConsole
         while (window.IsOpen)
         {
             window.DispatchEvents();
-            videoController.WindowDisplay(keyboardController);
+            videoController.WindowDisplay();
         }
     }
 }
